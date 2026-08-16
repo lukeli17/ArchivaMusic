@@ -110,6 +110,27 @@ def parse_date(date_str: str) -> int | None:
         return None
 
 
+_LEADING_TRACK_RE = re.compile(r"^\s*(?:(\d{1,2})[\s._-]+)?(\d{1,3})(?=[\s._-]|$)")
+_VINYL_TRACK_RE = re.compile(r"^\s*[A-Ha-h](\d{1,2})(?=[\s._-]|$)")
+
+
+def track_no_from_filename(stem: str) -> tuple[int | None, int | None]:
+    """
+    Returns (disc, track) parsed from a filename prefix, or Nones.
+    Supports "07 Song", "1-07 Song", "007. Song" and vinyl-style "A1 Song".
+    """
+    match = _LEADING_TRACK_RE.match(str(stem or ""))
+    if match:
+        disc, track = match.groups()
+        return (int(disc) if disc is not None else None), int(track)
+
+    match = _VINYL_TRACK_RE.match(str(stem or ""))
+    if match:
+        return None, int(match.group(1))
+
+    return None, None
+
+
 def clean_filename(filename: str):
     if "official" in filename.lower():
         return re.sub(r"\s*\([^)]*official[^)]*\)", "", filename, flags=re.IGNORECASE)
@@ -293,13 +314,14 @@ def get_tags(filepath: str, config: UserConfig) -> dict:
         except TypeError:
             metadata[prop] = 0
 
-    # INFO: Convert these to int
-    to_int = ["track", "disc"]
-    for prop in to_int:
+    # INFO: Convert these to int, falling back to the filename prefix
+    fallback_disc, fallback_track = track_no_from_filename(filename)
+    fallbacks = {"track": fallback_track, "disc": fallback_disc}
+    for prop in fallbacks:
         try:
             metadata[prop] = int(getattr(tags, prop))
         except (ValueError, TypeError):
-            metadata[prop] = 1
+            metadata[prop] = fallbacks[prop] if fallbacks[prop] is not None else 1
 
     # generate hash
     # create albumhash using og_album

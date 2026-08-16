@@ -26,8 +26,15 @@ def sort_by_track_no(tracks: list[Track]) -> list[Track]:
     :return: Sorted list of Tracks
     """
     for t in tracks:
-        track = str(t.track).zfill(3)
-        t._pos = int(f"{t.disc}{track}")
+        try:
+            disc = max(int(t.disc), 0)
+        except (ValueError, TypeError):
+            disc = 1
+        try:
+            track = min(max(int(t.track), 0), 999)
+        except (ValueError, TypeError):
+            track = 1
+        t._pos = disc * 1000 + track
 
     tracks = sorted(tracks, key=lambda t: t._pos)
 
