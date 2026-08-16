@@ -12,6 +12,7 @@ def split_artists(src: str, config: UserConfig):
     result = []
     current = ""
     i = 0
+    separators = sorted((s for s in config.artistSeparators if s), key=len, reverse=True)
 
     while i < len(src):
         # Check if any ignored artist starts at this position (case-insensitive)
@@ -33,12 +34,15 @@ def split_artists(src: str, config: UserConfig):
             result.append(ignored_match)
             # Move past the ignored artist
             i += len(ignored_match)
-        elif src[i] in config.artistSeparators:
+        elif sep_match := next(
+            (sep for sep in separators if src.lower().startswith(sep.lower(), i)),
+            None,
+        ):
             # If we encounter a separator, process the current string
             if current.strip():
                 result.extend([a.strip() for a in current.split(",") if a.strip()])
                 current = ""
-            i += 1
+            i += len(sep_match)
         else:
             # If it's not an ignored artist or a separator, add to current
             current += src[i]
