@@ -51,6 +51,66 @@ class GetAllItemsPath(BaseModel):
     )
 
 
+COMMON_SORT_KEYS = {
+    "date",
+    "created_date",
+    "trackcount",
+    "duration",
+    "playcount",
+    "playduration",
+    "lastplayed",
+}
+ALBUM_SORT_KEYS = COMMON_SORT_KEYS | {"title", "albumartists"}
+ARTIST_SORT_KEYS = COMMON_SORT_KEYS | {"name", "albumcount"}
+TEXT_SORT_KEYS = {"title", "albumartists", "name"}
+
+
+def resolve_sort_key(sortkey: str, is_albums: bool) -> str:
+    """
+    Returns the sort key if it is valid for the item type, else the default text key.
+    """
+    allowed = ALBUM_SORT_KEYS if is_albums else ARTIST_SORT_KEYS
+
+    if sortkey in allowed:
+        return sortkey
+
+    return "title" if is_albums else "name"
+
+
+def build_sort_key(sortkey: str, is_albums: bool, config: UserConfig):
+    """
+    Returns a total sort key function for the given attribute that never raises.
+    """
+    is_text = sortkey in TEXT_SORT_KEYS
+    article_key = "albumartists" if is_albums else "name"
+    article_aware = sortkey == article_key and config.artistArticleAwareSorting
+    articles = config.artistSortingArticles
+
+    def sort_key(x):
+        value = getattr(x, sortkey, None)
+
+        if sortkey == "albumartists":
+            value = value[0].get("name", "") if value else ""
+
+        if is_text:
+            name = value if isinstance(value, str) else str(value or "")
+
+            if article_aware:
+                name = get_sort_name(name, articles=articles)
+
+            return name.casefold()
+
+        if isinstance(value, (int, float)):
+            return value
+
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0
+
+    return sort_key
+
+
 @api.get("/<itemtype>")
 def get_all_items(path: GetAllItemsPath, query: GetAllItemsQuery):
     """
@@ -77,7 +137,7 @@ def get_all_items(path: GetAllItemsPath, query: GetAllItemsQuery):
 
     start = query.start
     limit = query.limit
-    sortkey = query.sortby
+    sortkey = resolve_sort_key(query.sortby, is_albums)
     reverse = query.reverse == "1"
 
     sort_is_count = sortkey == "trackcount"
@@ -88,48 +148,16 @@ def get_all_items(path: GetAllItemsPath, query: GetAllItemsQuery):
     sort_is_lastplayed = sortkey == "lastplayed"
 
     sort_is_date = is_albums and sortkey == "date"
-    sort_is_albumartists = is_albums and sortkey == "albumartists"
-    sort_is_artistname = is_artists and sortkey == "name"
 
     sort_is_artist_trackcount = is_artists and sortkey == "trackcount"
     sort_is_artist_albumcount = is_artists and sortkey == "albumcount"
 
-    def sortfunc(x):
-        return getattr(x, sortkey)
+    sort_key = build_sort_key(sortkey, is_albums, UserConfig())
 
-    def sortfunc_casefold(x):
-        return getattr(x, sortkey).casefold()
-
-    if sort_is_albumartists:
-        config = UserConfig()
-
-        if config.artistArticleAwareSorting:
-
-            def sortfunc(x):
-                return get_sort_name(
-                    getattr(x, sortkey)[0]["name"],
-                    articles=config.artistSortingArticles,
-                )
-        else:
-
-            def sortfunc(x):
-                return getattr(x, sortkey)[0]["name"].casefold()
-
-    if sort_is_artistname:
-        config = UserConfig()
-
-        if config.artistArticleAwareSorting:
-
-            def sortfunc_casefold(x):
-                return get_sort_name(
-                    getattr(x, sortkey),
-                    articles=config.artistSortingArticles,
-                )
-
-    try:
-        sorted_items = natsorted(items, key=sortfunc_casefold, reverse=reverse)
-    except AttributeError:
-        sorted_items = sorted(items, key=sortfunc, reverse=reverse)
+    if sortkey in TEXT_SORT_KEYS:
+        sorted_items = natsorted(items, key=sort_key, reverse=reverse)
+    else:
+        sorted_items = sorted(items, key=sort_key, reverse=reverse)
 
     items = sorted_items[start : start + limit]
     album_list = []
