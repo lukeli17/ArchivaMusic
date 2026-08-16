@@ -17,7 +17,7 @@ from swingmusic.store.folder import FolderStore
 from swingmusic.store.general import GeneralStore
 from swingmusic.store.tracks import TrackStore
 from swingmusic.utils import flatten
-from swingmusic.utils.filesystem import run_fast_scandir
+from swingmusic.utils.filesystem import is_hidden_file, run_fast_scandir
 from swingmusic.utils.progressbar import tqdm
 from swingmusic.utils.remove_duplicates import remove_duplicates
 
@@ -107,6 +107,10 @@ class IndexTracks:
         to_remove = set()
 
         for track in TrackTable.get_all():
+            if is_hidden_file(os.path.basename(track.filepath)):
+                to_remove.add(track.filepath)
+                continue
+
             try:
                 if track.last_mod == round(os.path.getmtime(track.filepath)):
                     unmodified_paths.add(track.filepath)

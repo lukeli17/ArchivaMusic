@@ -5,6 +5,7 @@ This library contains the classes and functions related to the watchdog file wat
 import os
 import sqlite3
 import time
+from pathlib import Path
 
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
@@ -23,6 +24,7 @@ from swingmusic.models import Artist, Track
 from swingmusic.store.albums import AlbumStore
 from swingmusic.store.artists import ArtistMapEntry, ArtistStore
 from swingmusic.store.tracks import TrackStore
+from swingmusic.utils.filesystem import is_hidden_file
 
 
 class Watcher:
@@ -242,6 +244,29 @@ class Handler(PatternMatchingEventHandler):
             patterns=patterns,
             ignore_directories=True,
         )
+
+    def is_hidden_path(self, path: str) -> bool:
+        """
+        True if any component of the path below its watched root is hidden.
+        """
+        for root in self.root_dirs:
+            for base in {os.fspath(root), os.path.realpath(root)}:
+                if path.startswith(base):
+                    rel = os.path.relpath(path, base)
+                    return any(is_hidden_file(part) for part in Path(rel).parts)
+
+        return is_hidden_file(os.path.basename(path))
+
+    def dispatch(self, event):
+        """
+        Drops events on hidden files or inside hidden directories.
+        """
+        paths = [event.src_path, getattr(event, "dest_path", "")]
+
+        if any(self.is_hidden_path(os.fsdecode(p)) for p in paths if p):
+            return
+
+        super().dispatch(event)
 
     def get_abs_path(self, path: str):
         """

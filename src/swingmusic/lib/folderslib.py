@@ -3,7 +3,7 @@ from pathlib import Path
 
 from swingmusic.models import Folder
 from swingmusic.store.folder import FolderStore
-from swingmusic.utils.filesystem import SUPPORTED_FILES
+from swingmusic.utils.filesystem import SUPPORTED_FILES, is_hidden_file
 from swingmusic.serializers.track import serialize_tracks
 from swingmusic.lib.sortlib import sort_folders, sort_tracks
 
@@ -78,7 +78,10 @@ def get_files_and_dirs(
     for entry in path.iterdir():
         ext = entry.suffix.lower()
 
-        if entry.is_dir() and not entry.stem.startswith("."):
+        if is_hidden_file(entry.name):
+            continue
+
+        if entry.is_dir():
             dirs.append((entry / "").as_posix())
             # only append as posix for FolderStore and sort_folder function
             # TODO: rework everything to support pathlib

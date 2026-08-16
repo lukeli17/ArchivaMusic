@@ -27,6 +27,13 @@ IGNORE_PATH_CONTAINS = {
 }
 
 
+def is_hidden_file(name: str) -> bool:
+    """
+    True for dotfiles and AppleDouble/system sidecars.
+    """
+    return name.startswith(".") or name.startswith("$")
+
+
 def run_fast_scandir(path: str, full=False) -> tuple[list[str], list[str]]:
     """
     Scans a directory for files with a specific extension.
@@ -65,11 +72,11 @@ def run_fast_scandir(path: str, full=False) -> tuple[list[str], list[str]]:
 
     try:
         for entry in path.iterdir():
+            if is_hidden_file(entry.name):
+                continue  # filter out system / hidden files
+
             if entry.is_dir():
-                if entry.name.startswith(".") or entry.name.startswith("$"):
-                    continue  # filter out system / hidden files
-                else:
-                    subfolders.append(entry)
+                subfolders.append(entry)
 
             if entry.is_file():
                 ext = entry.suffix.lower()
