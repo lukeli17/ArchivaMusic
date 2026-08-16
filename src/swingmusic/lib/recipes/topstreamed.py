@@ -37,8 +37,8 @@ class TopArtists(CronJob, HomepageRoutine):
 
         return False
 
-    def __init__(self, duration: str = "month") -> None:
-        super().__init__()
+    def __init__(self, duration: str = "month", register: bool = True) -> None:
+        super().__init__(register=register)
         self.duration = duration
 
         if not self.is_valid:

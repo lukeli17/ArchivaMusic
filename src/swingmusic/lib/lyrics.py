@@ -249,6 +249,13 @@ class Lyrics:
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
+def _read_lyrics_file(path: Path) -> str:
+    """
+    Reads a lyrics file as UTF-8, stripping a BOM and replacing undecodable bytes.
+    """
+    return path.read_text(encoding="utf-8-sig", errors="replace")
+
+
 def get_lyrics_file(track_path: str | pathlib.Path) -> Lyrics:
     """
     Try to get lyrics from a relative lrc file.
@@ -262,11 +269,11 @@ def get_lyrics_file(track_path: str | pathlib.Path) -> Lyrics:
 
     # check paths
     if lyrics_path.exists():
-        lyrics = Lyrics(lyrics_path.read_text())
+        lyrics = Lyrics(_read_lyrics_file(lyrics_path))
         return lyrics
 
     elif extended_path.exists():
-        lyrics = Lyrics(extended_path.read_text())
+        lyrics = Lyrics(_read_lyrics_file(extended_path))
         return lyrics
 
     else:

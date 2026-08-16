@@ -75,6 +75,7 @@ def load_endpoints(web: OpenAPI):
     with web.app_context():
         web.register_api(swing_api.album.api)
         web.register_api(swing_api.artist.api)
+        web.register_api(swing_api.classical.api)
         web.register_api(swing_api.stream.api)
         web.register_api(swing_api.track.api)
         web.register_api(swing_api.search.api)

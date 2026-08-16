@@ -261,7 +261,7 @@ class AssetHandler:
 
         if not (client_path / "index.html").exists():
             log.error("Web client not found. Exiting ...")
-            sys.exit(1)
+            # sys.exit(1)
 
         # Verify client matches app version; refresh from bundle or GitHub
         # if not. No-op for dev builds.

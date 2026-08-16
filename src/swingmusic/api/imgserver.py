@@ -1,11 +1,10 @@
 from pathlib import Path
-import threading
-import time
 from flask_openapi3 import Tag
 from flask_openapi3 import APIBlueprint
 from pydantic import BaseModel, Field
 from flask import send_from_directory
 
+from swingmusic.lib.coverart import find_best_cover
 from swingmusic.settings import Defaults, Paths
 from swingmusic.store.albums import AlbumStore
 from swingmusic.store.tracks import TrackStore
@@ -62,28 +61,12 @@ def find_thumbnail(albumhash: str, pathhash: str):
         return None, None, ""
 
     folder = Path(track_file.folder)
+    image = find_best_cover(folder)
 
-    # INFO: Check if the folder has image files
-    extensions = [".jpg", ".jpeg", ".png", ".webp"]
-    hierarchy = ["cover", "front", "disc", "tray", "back", "folder", "album", "artwork"]
-
-    images: list[Path] = []
-    for item in folder.rglob("*"):
-        if item.suffix in extensions:
-            images.append(item)
-
-    if len(images) == 0:
+    if image is None:
         return None, None, ""
 
-    # INFO: Check if the folder has image files in the hierarchy
-    for item in hierarchy:
-        for image in images:
-            if image.name.lower().startswith(item.lower()):
-                return image.parent, image.name, track_file.albumhash
-
-    # INFO: If no image falls in the hierarchy, return the first image
-    first_image = images[0]
-    return first_image.parent, first_image.name, track_file.albumhash
+    return image.parent, image.name, track_file.albumhash
 
 
 def send_fallback_img(filename: str = "default.webp"):
@@ -105,8 +88,6 @@ def send_file_or_fallback(
     """
     Returns the file from the folder or the fallback image.
     """
-    # sleep for 10s non-blocking
-    threading.Thread(target=time.sleep, args=(10,)).start()
     fpath = Path(folder) / filename
 
     if fpath.exists():

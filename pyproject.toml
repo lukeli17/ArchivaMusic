@@ -45,6 +45,7 @@ dependencies = [
     "blurhash-python>=1.2.2",
     "nuitka>=4.0.8",
     "tinytag>=2.2.1",
+    "mutagen>=1.48.1",
 ]
 
 [project.optional-dependencies]
@@ -73,9 +74,20 @@ Issues = "https://github.com/swingmx/swingmusic/issues"
 # Include compiled Nuitka extension modules (.so on Linux/macOS, .pyd on
 # Windows) in the wheel. These replace the .py source files after the
 # compile-premium-modules.sh step runs in CI.
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true
+exclude = ["*.tests", "*.tests.*"]
+
+# setuptools-scm's file finder still tracks files under excluded packages;
+# keep test trees out of wheels/sdists explicitly.
+[tool.setuptools.exclude-package-data]
+"*" = ["*/tests/*", "tests/*"]
+
 [tool.setuptools.package-data]
 "swingmusic.premium" = ["*.so", "*.pyd"]
 "swingmusic.premium.recipes" = ["*.so", "*.pyd"]
+"swingmusic.premium.classical" = ["*.so", "*.pyd"]
 
 [tool.setuptools_scm]
 version_scheme = "only-version"

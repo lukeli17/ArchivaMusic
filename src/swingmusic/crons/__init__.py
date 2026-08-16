@@ -3,15 +3,6 @@ import schedule
 
 from swingmusic.utils.threading import background
 
-# IMPORTANT: `crons/__init__.py` is loaded transitively whenever anything
-# imports `swingmusic.crons.cron` (which is where the CronJob base class
-# lives). The recipe submodules — recents, topstreamed — inherit from
-# CronJob, so they trigger that load path. If we also imported the
-# recipes here at module level, we'd get a circular import: loading
-# topstreamed → loads crons pkg → tries to import topstreamed again (mid-
-# init) → ImportError. Keep this module's top-level imports minimal and
-# defer recipe/premium imports into `start_cron_jobs`.
-
 
 @background
 def start_cron_jobs(and_exit: bool = False):
@@ -21,14 +12,6 @@ def start_cron_jobs(and_exit: bool = False):
     from swingmusic.lib.recipes.recents import RecentlyAdded, RecentlyPlayed
     from swingmusic.lib.recipes.topstreamed import TopArtists
 
-    # Premium symbols are looked up via the module object at call time,
-    # not captured via `from swingmusic.premium import X` at module-level.
-    # The reason is identical to the recipe-import deferral above: during
-    # premium.__init__ a partial `swingmusic.premium` module with the
-    # free-tier stubs (None) exists briefly, and any `from swingmusic.premium
-    # import X` evaluated against that partial module binds X to the stub
-    # permanently. Attribute access via `premium.X` at call time always
-    # sees the finalized values.
     import swingmusic.premium as premium
 
     # NOTE: RecentlyPlayed is not a CRON job, it's triggered here to
@@ -36,19 +19,23 @@ def start_cron_jobs(and_exit: bool = False):
     RecentlyPlayed()
     RecentlyAdded()
 
-    # Initialized CRON jobs
-    TopArtists()
-    TopArtists(duration="week")
+    register = not and_exit
+
+    jobs = [
+        TopArtists(register=register),
+        TopArtists(duration="week", register=register),
+    ]
 
     # Premium cron jobs are only registered when the compiled premium
     # modules are present in this build.
     if premium.MixesCron is not None:
-        premium.MixesCron()
+        jobs.append(premium.MixesCron(register=register))
     if premium.LicenseValidation is not None:
-        premium.LicenseValidation()
+        jobs.append(premium.LicenseValidation(register=register))
 
     # Trigger all CRON jobs when the app is started.
-    schedule.run_all()
+    for job in jobs:
+        job.run()
 
     # To manually trigger cron jobs, only once
     if and_exit:

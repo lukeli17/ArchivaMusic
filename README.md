@@ -94,7 +94,7 @@ You can change the Swing Music port by updating both the `-p` mapping and `SWING
 Options flags can be passed when starting the app in the terminal to tweak runtime settings or perform tasks. You can use the `-h` flag to see all supported options.
 
 > [!TIP]
-> You can read more about options in [the docs](https://swingmusic.vercel.app/guide/getting-started.html#options).
+> You can read more about options in [the docs](https://swingmx.com/guide/introduction.html#options).
 
 ### Contributing and Development
 
