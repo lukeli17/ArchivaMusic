@@ -15,7 +15,7 @@
 
 ##
 
-Archiva Music is a self-hosted music streaming server for your personal collection, based on [Swing Music](https://github.com/swingmx/swingmusic).
+Archiva Music 是面向个人音乐收藏的自托管音乐库与流媒体服务器，支持从本地文件读取和整理音乐元数据，并将不同音质、来源和版本的音频统一收纳、浏览和播放。
 
 ## Features
 

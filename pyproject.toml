@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swingmusic"
-description = "Archiva Music, a Swing Music-based self-hosted music server"
+description = "Archiva Music：面向个人音乐收藏的自托管音乐库与流媒体服务器，支持多音质、多版本音乐统一管理。"
 readme = "README.md"
 requires-python = ">=3.11"
 dynamic = ["version"]

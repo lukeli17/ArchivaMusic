@@ -1,6 +1,6 @@
 # Archiva Music 开发说明
 
-本项目由 Swing Music fork 而来，后端保留 `swingmusic` Python 包名，以减少早期改名对内部导入和数据兼容性的影响。用户界面和品牌名称已经改为 Archiva Music。
+Archiva Music 是面向个人音乐收藏的自托管音乐库与流媒体服务器。后端暂时保留 `swingmusic` Python 包名，以减少早期改名对内部导入和数据兼容性的影响；用户界面和品牌名称统一使用 Archiva Music。
 
 ## 后端
 
