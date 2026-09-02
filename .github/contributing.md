@@ -1,31 +1,31 @@
-# Archiva Music Contributing Guide
+# Archiva Music 贡献指南
 
-Hi! We're really excited that you are interested in contributing to Swing Music. This project uses Python, [Flask](https://flask.palletsprojects.com/en/2.3.x/), Sqlite, [uv](https://docs.astral.sh/uv), and [Vue](https://vuejs.org/).
+感谢你对 Archiva Music 的兴趣！本项目使用 Python、[Flask](https://flask.palletsprojects.com/en/2.3.x/)、SQLite、[uv](https://docs.astral.sh/uv) 和 [Vue](https://vuejs.org/)。
 
-If you are interested in making a code contribution take a moment to read through the following guidelines:
+如果你准备贡献代码，请先阅读以下指南：
 
-- [Code of Conduct](./CODE_OF_CONDUCT.md)
-- [Pull Request Guidelines](#pull-request-guidelines)
+- [行为准则](./CODE_OF_CONDUCT.md)
+- [Pull Request 指南](#pull-request-指南)
 
-## Pull Request Guidelines
+## Pull Request 指南
 
-- Checkout a topic branch from the relevant branch, e.g. `master`, and merge back against that branch.
+- 请从相关基础分支（例如 `master`）创建主题分支，并将修改合并回对应分支。
 
-- If adding a new feature:
+- 如果新增功能：
 
-  - Provide a convincing reason to add this feature. Ideally, you should open a suggestion issue first and have it approved before working on it.
+  - 请说明增加该功能的必要性。建议先创建功能建议 Issue，获得认可后再开始开发。
 
-- If fixing a bug:
+- 如果修复问题：
 
-  - Provide a detailed description of the bug in the PR.
+  - 请在 PR 中详细描述问题的表现、原因和修复方式。
 
-## Development Setup
+## 开发环境配置
 
-This project is broken down into 2 parts. The server (this repo) and the client (which lives [here](https://github.com/swing-opensource/swingmusic-client)).
+本项目分为服务端和 Web 客户端两个部分，客户端位于 [ArchivaMusic-client](https://github.com/lukeli17/ArchivaMusic-client)。
 
-To contribute to the server development, you need to install [uv package manager](https://docs.astral.sh/uv).
+参与服务端开发前，需要安装 [uv 包管理器](https://docs.astral.sh/uv)。
 
-Fork this repo, git clone and install the dependencies:
+Fork 本仓库，克隆代码并安装依赖：
 
 ```sh
 git clone https://github.com/lukeli17/ArchivaMusic.git
@@ -38,25 +38,25 @@ cd ArchivaMusic
 uv sync
 ```
 
-Finally, run the server for development on port 1718.
+然后在 `1718` 端口启动服务端：
 
 ```sh
 uv run python -m swingmusic --port 1718
 ```
 
-After that, checkout into a new branch and make your changes.
+之后创建新分支并进行修改：
 
 ```sh
 git checkout <branch_name>
 ```
 
-After testing your changes, commit your changes and open a pull request.
+完成测试后提交修改，并创建 Pull Request。
 
-## Contributing to the client
+## 参与客户端开发
 
-You need to have [yarn](https://yarnpkg.com) installed in your machine. Please check out the [install guide](https://yarnpkg.com/getting-started/install).
+你需要先安装 [yarn](https://yarnpkg.com)，可参考[yarn 安装指南](https://yarnpkg.com/getting-started/install)。
 
-Fork the repo, git clone and install the dependencies:
+Fork 仓库，克隆代码并安装依赖：
 
 ```sh
 git clone https://github.com/lukeli17/ArchivaMusic-client.git
@@ -69,23 +69,23 @@ cd ArchivaMusic-client
 yarn install
 ```
 
-You can now run the client in development mode.
+现在可以启动客户端开发模式：
 
 ```sh
 yarn dev
 ```
 
-You can see the client at http://localhost:1719.
+客户端地址为 <http://localhost:1719>。
 
 > [!TIP]
-> The client is configured to hook into the development server running on port `1718` (to allow another server instance to be running on the published port).
+> 客户端会连接运行在 `1718` 端口的开发服务端，以便与正式发布端口区分。
 
-## Where can I go for help?
+## 获取帮助
 
-If you need help, you can find users and contributors on [Swing Music Community](https://t.me/+9n61PFcgKhozZDE0) Telegram chat.
+如果需要帮助，请在 [Archiva Music Issues](https://github.com/lukeli17/ArchivaMusic/issues) 中提交问题。
 
-## What does the Code of Conduct mean for me?
+## 行为准则说明
 
-Our Code of Conduct means that you are responsible for treating everyone on the project with respect and courtesy regardless of their identity. If you are the victim of any inappropriate behavior or comments as described in our Code of Conduct, we are here for you and will do the best to ensure that the abuser is reprimanded appropriately, per our code.
+行为准则要求所有参与者尊重他人，并以礼貌、友善的方式交流，不因身份差异区别对待任何人。如果你遇到行为准则中描述的不当行为，请提交 Issue，我们会根据行为准则进行处理。
 
-See you around?
+期待你的参与！

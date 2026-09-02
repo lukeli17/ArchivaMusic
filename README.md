@@ -7,101 +7,68 @@
   <img src="https://img.shields.io/github/v/release/lukeli17/ArchivaMusic" alt="Latest GitHub Release" />
 </div>
  
-**<div align="center" style="padding-top: 1.25rem">[Download](https://swingmx.com/downloads) • [Get Android Client](https://github.com/swingmx/android) •  <a href="https://github.com/sponsors/swingmx" target="_blank">Sponsor Us ❤️</a> • [Docs](https://swingmx.com/guide/introduction.html) • [Screenshots](https://swingmx.com) • [r/SwingMusicApp](https://www.reddit.com/r/SwingMusicApp)</div>**
+**<div align="center" style="padding-top: 1.25rem">[本地开发](DEVELOPMENT.md) • [提交问题](https://github.com/lukeli17/ArchivaMusic/issues) • [贡献指南](.github/contributing.md)</div>**
 
 ##
 
-[![Image showing the Archiva Music artist page](https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/artist.webp)](https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/artist.webp)
+[![Archiva Music 艺术家页面截图](https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/artist.webp)](https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/artist.webp)
 
 ##
 
 Archiva Music 是面向个人音乐收藏的自托管音乐库与流媒体服务器，支持从本地文件读取和整理音乐元数据，并将不同音质、来源和版本的音频统一收纳、浏览和播放。
 
-## Features
+## 功能
 
-- **Daily Mixes** - curated everyday based on your listening activity
-- **Metadata normalization** - a clean and consistent library
-- **Album versioning** - normalized albums and association with version labels (eg. Deluxe, Remaster, etc)
-- **Related artist and albums**
-- **Folder view** - Browse your music library by folders
-- **Beautiful browser based UI**
-- **Silence detection** - Combine cross-fade with silence detection to create a seamless listening experience
-- **Collections** - Group albums and artists based on your preferences
-- **Statistics** - Get insights into your listening activity
-- **Last.fm scrobbling**
-- **Multi-user support**
-- **Cross-platform** - Windows, Linux, MacOS (coming soon), arm64, x86
+- **每日混音**：根据你的聆听记录生成个性化推荐
+- **元数据整理**：建立整洁、统一的音乐资料库
+- **专辑版本管理**：识别并关联豪华版、重制版等专辑版本
+- **相关艺人与专辑**：发现相关音乐内容
+- **文件夹视图**：按文件夹浏览音乐库
+- **网页播放器**：通过浏览器访问音乐库
+- **静音检测**：结合淡入淡出与静音检测，实现更连贯的播放体验
+- **收藏集**：按个人偏好整理艺人和专辑
+- **播放统计**：查看音乐播放数据
+- **Last.fm 同步**：同步聆听记录
+- **多用户支持**：支持多个用户使用同一服务
+- **跨平台运行**：支持 Linux、Windows，以及后续扩展的平台和架构
 
-### Installation
+## 安装与开发
 
-Archiva Music is currently in development. For the local source setup, see the [development guide](DEVELOPMENT.md). The original Swing Music installation script is not an Archiva Music release installer.
+Archiva Music 目前仍处于开发阶段。源码开发、调试和统一启动方式请参阅[开发说明](DEVELOPMENT.md)。
 
-There are no Archiva Music binary releases or published container images yet.
+目前暂未发布 Archiva Music 的正式二进制版本或公开 Docker 镜像。
 
-#### Upstream Docker Compose reference
+### Docker 发布计划
 
-The following is retained as a reference for the upstream project. It does not install Archiva Music:
-
-Here's a sample Docker compose file:
+正式 Docker 镜像发布后，计划统一使用 `1717` 端口，由后端同时提供 API 和构建后的网页界面，因此部署时只需要暴露一个端口：
 
 ```yaml
-services:
-  swingmusic:
-    image: ghcr.io/swingmx/swingmusic:latest
-    container_name: swingmusic
-    ports:
-      - "1970:1970"
-    volumes:
-      - /path/to/music:/music
-      - /path/to/config:/config
-    environment:
-      - SWINGMUSIC_PORT=1970
-      - SWINGMUSIC_DEVICE_NAME=Host name here
-    restart: unless-stopped
+ports:
+  - "1717:1717"
 ```
 
-The `SWINGMUSIC_DEVICE_NAME` sets the name this server reports to connected clients. To use a different port, change both `SWINGMUSIC_PORT` and the `ports` mapping to match (e.g. `2001:2001` with `SWINGMUSIC_PORT=2001`).
+源码开发时使用后端 `1718`、前端 `1719` 两个端口；发布到 Docker 后只使用 `1717`。当前 Docker 配置仍在整理中，暂时不要把其它项目的镜像当作 Archiva Music 镜像使用。
 
-### Using Docker CLI
+## 命令行选项
 
-```sh
-docker pull ghcr.io/swingmx/swingmusic:latest
-```
-
-Then run:
-
-```sh
-docker run --name swingmusic -p 1970:1970 -e SWINGMUSIC_PORT=1970 -e SWINGMUSIC_DEVICE_NAME="Host Name Here" -v /path/to/music:/music -v /path/to/config:/config --restart unless-stopped ghcr.io/swingmx/swingmusic:latest
-```
-
-Replace the following with appropriate values:
-
-1. `/path/to/music` - Your music directory on the host
-2. `/path/to/config` - Path to create Swing Music configs on the host
-3. `Host Name Here` - Your host device name
-
-You can change the Swing Music port by updating both the `-p` mapping and `SWINGMUSIC_PORT` to the same value (e.g. `-p 2001:2001 -e SWINGMUSIC_PORT=2001`).
-
-### Options
-
-Options flags can be passed when starting the app in the terminal to tweak runtime settings or perform tasks. You can use the `-h` flag to see all supported options.
+启动程序时可以通过命令行选项调整运行参数或执行维护任务。使用 `-h` 查看全部选项。
 
 > [!TIP]
-> You can read more about options in [the docs](https://swingmx.com/guide/introduction.html#options).
+> 本地开发、启动和调试方法请参阅[开发说明](DEVELOPMENT.md)。
 
-### Contributing and Development
+## 贡献与开发
 
-Swing Music is looking for contributors. If you're interested, please join us at the [Swing Music Community](https://t.me/+9n61PFcgKhozZDE0) group on Telegram. For more information, take a look at https://github.com/swing-opensource/swingmusic/issues/186.
+Archiva Music 欢迎功能建议、问题反馈和代码贡献。提交代码前请阅读[贡献指南](.github/contributing.md)。
 
-[**CONTRIBUTING GUIDELINES**](.github/contributing.md).
+项目当前由 [@lukeli17](https://github.com/lukeli17) 负责维护。
 
-### License
+## 项目来源与许可证
 
-This software is provided to you with terms stated in the [AGPLv3 License](https://github.com/swingmx/swingmusic/blob/master/LICENSE) or any later version. Read the full text in the `LICENSE` file located at the root of this repository.
+Archiva Music 是基于开源音乐库项目进行二次开发和持续改造的项目。项目继续采用 [AGPLv3 许可证](LICENSE)，完整条款请查看仓库根目录的 `LICENSE` 文件。
 
-### Contributors
+## 历史贡献者
 
-Shout out to the following code contributors who have helped maintain and improve Swing Music:
+以下名单记录的是项目基础代码及历史版本的贡献者，感谢他们曾经对项目维护和改进所做的工作；他们不代表 Archiva Music 当前的开发团队：
 
 <div align="left">
   <table>
