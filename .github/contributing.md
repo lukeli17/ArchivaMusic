@@ -38,10 +38,10 @@ cd ArchivaMusic
 uv sync
 ```
 
-Finally, run the server for development on port 1980.
+Finally, run the server for development on port 1718.
 
 ```sh
-uv run python -m swingmusic --port 1980
+uv run python -m swingmusic --port 1718
 ```
 
 After that, checkout into a new branch and make your changes.
@@ -75,10 +75,10 @@ You can now run the client in development mode.
 yarn dev
 ```
 
-You can see the client at http://localhost:5173.
+You can see the client at http://localhost:1719.
 
 > [!TIP]
-> The client is configured to hook into the development server running on port `1980` (to allow the another server instance to be running on the default port).
+> The client is configured to hook into the development server running on port `1718` (to allow another server instance to be running on the published port).
 
 ## Where can I go for help?
 

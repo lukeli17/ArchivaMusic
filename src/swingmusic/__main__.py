@@ -22,8 +22,8 @@ parser.add_argument(
 parser.add_argument("--host", default="0.0.0.0", help="Host to run the app on.")
 parser.add_argument(
     "--port",
-    default=int(os.environ.get("SWINGMUSIC_PORT") or 1970),
-    help="HTTP port to run the app on. Falls back to $SWINGMUSIC_PORT, then 1970.",
+    default=int(os.environ.get("SWINGMUSIC_PORT") or 1717),
+    help="HTTP port to run the app on. Falls back to $SWINGMUSIC_PORT, then 1717.",
     type=int,
 )
 parser.add_argument(
