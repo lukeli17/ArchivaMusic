@@ -28,13 +28,13 @@ To contribute to the server development, you need to install [uv package manager
 Fork this repo, git clone and install the dependencies:
 
 ```sh
-git clone https://github.com/lukeli17/archiva-music.git
+git clone https://github.com/lukeli17/ArchivaMusic.git
 
 # or with ssh
 
-git clone git@github.com:swingmx/swingmusic.git
+git clone git@github.com:lukeli17/ArchivaMusic.git
 
-cd archiva-music
+cd ArchivaMusic
 uv sync
 ```
 
@@ -59,13 +59,13 @@ You need to have [yarn](https://yarnpkg.com) installed in your machine. Please c
 Fork the repo, git clone and install the dependencies:
 
 ```sh
-git clone https://github.com/lukeli17/archiva-music-client.git
+git clone https://github.com/lukeli17/ArchivaMusic-client.git
 
 # or with ssh
 
-git clone git@github.com:swing-opensource/swingmusic-client.git
+git clone git@github.com:lukeli17/ArchivaMusic-client.git
 
-cd archiva-music-client
+cd ArchivaMusic-client
 yarn install
 ```
 

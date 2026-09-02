@@ -1,17 +1,17 @@
 <div align="center" style="display: flex; justify-content: center; align-items: center;">
-  <img class="lo" src='https://raw.githubusercontent.com/lukeli17/archiva-music/master/.github/images/logo-fill.light.svg' style="height: 4rem">
+  <img class="lo" src='https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/logo-fill.light.svg' style="height: 4rem">
 </div>
 <div align="center" style="font-size: 2rem"><b>Archiva Music</b></div>
 
 <div align="center">
-  <img src="https://img.shields.io/github/v/release/lukeli17/archiva-music" alt="Latest GitHub Release" />
+  <img src="https://img.shields.io/github/v/release/lukeli17/ArchivaMusic" alt="Latest GitHub Release" />
 </div>
  
 **<div align="center" style="padding-top: 1.25rem">[Download](https://swingmx.com/downloads) • [Get Android Client](https://github.com/swingmx/android) •  <a href="https://github.com/sponsors/swingmx" target="_blank">Sponsor Us ❤️</a> • [Docs](https://swingmx.com/guide/introduction.html) • [Screenshots](https://swingmx.com) • [r/SwingMusicApp](https://www.reddit.com/r/SwingMusicApp)</div>**
 
 ##
 
-[![Image showing the Archiva Music artist page](https://raw.githubusercontent.com/lukeli17/archiva-music/master/.github/images/artist.webp)](https://raw.githubusercontent.com/lukeli17/archiva-music/master/.github/images/artist.webp)
+[![Image showing the Archiva Music artist page](https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/artist.webp)](https://raw.githubusercontent.com/lukeli17/ArchivaMusic/master/.github/images/artist.webp)
 
 ##
 
