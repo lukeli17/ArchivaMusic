@@ -36,6 +36,20 @@ cd client
 yarn build
 ```
 
+## 一键管理开发环境
+
+项目提供了统一管理脚本：
+
+```sh
+./scripts/archiva-dev.sh status
+./scripts/archiva-dev.sh start
+./scripts/archiva-dev.sh stop
+./scripts/archiva-dev.sh restart
+./scripts/archiva-dev.sh logs
+```
+
+不带参数运行脚本会进入交互式菜单，可以查看状态并控制前后端启动或停止。脚本使用 `.dev-data` 保存开发配置，使用 `.dev-runtime` 保存 PID 文件和日志，不会触碰正式配置或 NAS 音乐文件。
+
 ## 说明
 
 - 开发阶段不需要 Docker；源码修改和调试更快。
