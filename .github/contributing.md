@@ -1,4 +1,4 @@
-# Swing Music Contributing Guide
+# Archiva Music Contributing Guide
 
 Hi! We're really excited that you are interested in contributing to Swing Music. This project uses Python, [Flask](https://flask.palletsprojects.com/en/2.3.x/), Sqlite, [uv](https://docs.astral.sh/uv), and [Vue](https://vuejs.org/).
 
@@ -28,13 +28,13 @@ To contribute to the server development, you need to install [uv package manager
 Fork this repo, git clone and install the dependencies:
 
 ```sh
-git clone https://github.com/swingmx/swingmusic.git
+git clone https://github.com/lukeli17/archiva-music.git
 
 # or with ssh
 
 git clone git@github.com:swingmx/swingmusic.git
 
-cd swingmusic
+cd archiva-music
 uv sync
 ```
 
@@ -59,13 +59,13 @@ You need to have [yarn](https://yarnpkg.com) installed in your machine. Please c
 Fork the repo, git clone and install the dependencies:
 
 ```sh
-git clone https://github.com/swing-opensource/swingmusic-client.git
+git clone https://github.com/lukeli17/archiva-music-client.git
 
 # or with ssh
 
 git clone git@github.com:swing-opensource/swingmusic-client.git
 
-cd swingmusic-client
+cd archiva-music-client
 yarn install
 ```
 

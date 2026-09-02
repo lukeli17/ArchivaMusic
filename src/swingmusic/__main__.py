@@ -11,13 +11,13 @@ from swingmusic.settings import AssetHandler, Metadata
 from swingmusic.start_swingmusic import start_swingmusic
 
 parser = argparse.ArgumentParser(
-    prog="swingmusic",
-    description="Awesome Music",
+    prog="archiva-music",
+    description="Archiva Music",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 
 parser.add_argument(
-    "-v", "--version", action="version", version=f"swingmusic v{Metadata.version}"
+    "-v", "--version", action="version", version=f"Archiva Music v{Metadata.version}"
 )
 parser.add_argument("--host", default="0.0.0.0", help="Host to run the app on.")
 parser.add_argument(
@@ -51,7 +51,7 @@ tools.add_argument(
 
 def run(*args, **kwargs):
     """
-    Swing Music entry point
+    Archiva Music entry point
     """
     args = parser.parse_args()
     args = vars(args)

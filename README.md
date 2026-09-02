@@ -1,21 +1,21 @@
 <div align="center" style="display: flex; justify-content: center; align-items: center;">
-  <img class="lo" src='https://github.com/swingmx/swingmusic/raw/master/.github/images/logo-fill.light.svg' style="height: 4rem">
+  <img class="lo" src='https://raw.githubusercontent.com/lukeli17/archiva-music/master/.github/images/logo-fill.light.svg' style="height: 4rem">
 </div>
-<div align="center" style="font-size: 2rem"><b>Swing Music</b></div>
+<div align="center" style="font-size: 2rem"><b>Archiva Music</b></div>
 
 <div align="center">
-  <img src="https://img.shields.io/github/v/release/swingmx/swingmusic" alt="Latest GitHub Release" />
+  <img src="https://img.shields.io/github/v/release/lukeli17/archiva-music" alt="Latest GitHub Release" />
 </div>
  
 **<div align="center" style="padding-top: 1.25rem">[Download](https://swingmx.com/downloads) • [Get Android Client](https://github.com/swingmx/android) •  <a href="https://github.com/sponsors/swingmx" target="_blank">Sponsor Us ❤️</a> • [Docs](https://swingmx.com/guide/introduction.html) • [Screenshots](https://swingmx.com) • [r/SwingMusicApp](https://www.reddit.com/r/SwingMusicApp)</div>**
 
 ##
 
-[![Image showing the Swing Music artist page](https://raw.githubusercontent.com/swingmx/swingmusic/master/.github/images/artist.webp)](https://raw.githubusercontent.com/swing-opensource/swingmusic/master/.github/images/artist.webp)
+[![Image showing the Archiva Music artist page](https://raw.githubusercontent.com/lukeli17/archiva-music/master/.github/images/artist.webp)](https://raw.githubusercontent.com/lukeli17/archiva-music/master/.github/images/artist.webp)
 
 ##
 
-Swing Music is a blazingly fast and beautiful, self-hosted music streaming server. Like a cooler Spotify ... but bring your own music.
+Archiva Music is a self-hosted music streaming server for your personal collection, based on [Swing Music](https://github.com/swingmx/swingmusic).
 
 ## Features
 
@@ -34,20 +34,13 @@ Swing Music is a blazingly fast and beautiful, self-hosted music streaming serve
 
 ### Installation
 
-On Linux or MacOS run the command below to install Swing Music:
+Archiva Music is currently in development. For the local source setup, see the [development guide](DEVELOPMENT.md). The original Swing Music installation script is not an Archiva Music release installer.
 
-```sh
-curl -fsSL https://setup.swingmx.com | bash
-```
+There are no Archiva Music binary releases or published container images yet.
 
-To run Swing Music on Windows, download the portable build from the [downloads page](https://swingmx.com/downloads.html) and run it.
+#### Upstream Docker Compose reference
 
-The app should start at <http://localhost:1970> by default. Open the URL in your browser to configure and use Swing Music.
-
-> [!TIP]
-> To stream your music from your Android device, download the [Android mobile client](https://github.com/swingmx/android).
-
-#### Using Docker Compose
+The following is retained as a reference for the upstream project. It does not install Archiva Music:
 
 Here's a sample Docker compose file:
 

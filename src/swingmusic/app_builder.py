@@ -120,9 +120,9 @@ def load_plugins(web: OpenAPI):
 # # # # # # # # # # #
 
 api_info = Info(
-    title="Swing Music",
+    title="Archiva Music",
     version=f"v{Metadata.version}",
-    description="The REST API exposed by your Swing Music server",
+    description="The REST API exposed by your Archiva Music server",
 )
 
 app = OpenAPI(__name__, info=api_info, doc_prefix="/docs")
