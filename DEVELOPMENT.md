@@ -8,7 +8,7 @@ Archiva Music 是面向个人音乐收藏的自托管音乐库与流媒体服务
 
 ```sh
 uv sync --python 3.12
-uv run python -m swingmusic --host 127.0.0.1 --port 7018 --debug \
+uv run python -m swingmusic --host 0.0.0.0 --port 7018 --debug \
   --config .dev-data --client client/dist
 ```
 
@@ -19,10 +19,22 @@ uv run python -m swingmusic --host 127.0.0.1 --port 7018 --debug \
 ```sh
 cd client
 yarn install --frozen-lockfile
-yarn dev --host 127.0.0.1
+yarn dev --host 0.0.0.0
 ```
 
-然后打开 <http://127.0.0.1:7019/>。开发前端会自动把 API 请求发送到后端的 7018 端口。
+然后打开 <http://127.0.0.1:7019/>；同一局域网内的其它设备可以访问 `http://本机局域网IP:7019`。开发前端会自动把 API 请求发送到后端的 7018 端口。
+
+## 管理脚本
+
+双击项目根目录的 `Archiva Music 管理.command`，如果服务尚未运行，脚本会自动启动前后端并打开浏览器。随后可以在菜单中查看状态、启动、停止、重启、打开浏览器和查看日志。
+
+命令行也可以运行：
+
+```sh
+./scripts/archiva-dev.sh
+```
+
+前端开发入口为 7019；后端 7018 仅供前端调用。局域网设备请访问脚本状态中显示的局域网地址。
 
 ## 端口约定
 

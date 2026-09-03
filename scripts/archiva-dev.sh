@@ -8,6 +8,7 @@ DEV_DATA_DIR="$ROOT_DIR/.dev-data"
 CLIENT_DIR="$ROOT_DIR/client"
 CLIENT_DIST_DIR="$CLIENT_DIR/dist"
 
+# 浏览器只打开前端端口 7019，后端 7018 由前端在后台调用。
 BACKEND_PORT=7018
 FRONTEND_PORT=7019
 
@@ -18,56 +19,64 @@ FRONTEND_LOG="$RUNTIME_DIR/frontend.log"
 
 mkdir -p "$RUNTIME_DIR"
 
+pid_from_file() {
+    local file="$1"
+    [[ -f "$file" ]] && sed -n '1p' "$file"
+}
+
 port_pid() {
     lsof -nP -iTCP:"$1" -sTCP:LISTEN -t 2>/dev/null | head -n 1
 }
 
-pid_from_file() {
-    local pid_file="$1"
-    if [[ -f "$pid_file" ]]; then
-        sed -n '1p' "$pid_file"
-    fi
-}
-
-is_running() {
+running() {
     [[ -n "$1" ]] && kill -0 "$1" 2>/dev/null
 }
 
-pid_matches() {
+matches() {
     local pid="$1"
     local pattern="$2"
-    is_running "$pid" && ps -p "$pid" -o command= 2>/dev/null | grep -E "$pattern" >/dev/null 2>&1
+    running "$pid" && ps -p "$pid" -o command= 2>/dev/null | grep -E "$pattern" >/dev/null 2>&1
 }
 
-print_service_status() {
-    local label="$1"
-    local pid_file="$2"
-    local port="$3"
-    local pattern="$4"
-    local pid
-    local listener
+backend_running() {
+    matches "$(pid_from_file "$BACKEND_PID_FILE")" 'swingmusic|archiva-music'
+}
 
-    pid="$(pid_from_file "$pid_file")"
-    listener="$(port_pid "$port")"
+frontend_running() {
+    matches "$(pid_from_file "$FRONTEND_PID_FILE")" 'vite|yarn.*dev'
+}
 
-    if [[ -n "$pid" ]] && pid_matches "$pid" "$pattern"; then
-        printf '%-10s 已启动   PID=%s   端口=%s\n' "$label" "$pid" "$port"
-    elif [[ -n "$listener" ]]; then
-        printf '%-10s 端口被占用 PID=%s   端口=%s\n' "$label" "$listener" "$port"
+lan_ip() {
+    local ip=""
+    ip="$(ipconfig getifaddr en0 2>/dev/null || true)"
+    [[ -z "$ip" ]] && ip="$(ipconfig getifaddr en1 2>/dev/null || true)"
+    printf '%s' "$ip"
+}
+
+show_status() {
+    local backend_pid="$(pid_from_file "$BACKEND_PID_FILE")"
+    local frontend_pid="$(pid_from_file "$FRONTEND_PID_FILE")"
+    local lan_address="$(lan_ip)"
+
+    printf '\n%s\n' 'Archiva Music 开发控制台'
+    if backend_running && frontend_running; then
+        printf '%s\n' '状态：运行中 · 本控制台管理'
+        printf '进程：后端 PID %s · 前端 PID %s\n' "$backend_pid" "$frontend_pid"
+    elif [[ -n "$(port_pid "$BACKEND_PORT")" || -n "$(port_pid "$FRONTEND_PORT")" ]]; then
+        printf '%s\n' '状态：部分运行或端口被占用'
     else
-        printf '%-10s 已停止   端口=%s\n' "$label" "$port"
+        printf '%s\n' '状态：已停止'
     fi
+    printf '本机地址：http://127.0.0.1:%s\n' "$FRONTEND_PORT"
+    if [[ -n "$lan_address" ]]; then
+        printf '局域网地址：http://%s:%s\n' "$lan_address" "$FRONTEND_PORT"
+    else
+        printf '%s\n' '局域网地址：未检测到局域网 IP'
+    fi
+    printf '\n'
 }
 
-status() {
-    printf '%s\n' 'Archiva Music 开发环境状态'
-    print_service_status '后端' "$BACKEND_PID_FILE" "$BACKEND_PORT" 'swingmusic|archiva-music'
-    print_service_status '前端' "$FRONTEND_PID_FILE" "$FRONTEND_PORT" 'vite|yarn.*dev'
-    printf '%s\n' "开发地址：http://127.0.0.1:$FRONTEND_PORT"
-    printf '%s\n' "后端地址：http://127.0.0.1:$BACKEND_PORT"
-}
-
-ensure_dependencies() {
+check_dependencies() {
     local missing=0
     for command_name in uv yarn lsof; do
         if ! command -v "$command_name" >/dev/null 2>&1; then
@@ -80,22 +89,17 @@ ensure_dependencies() {
 
 ensure_client_build() {
     if [[ ! -f "$CLIENT_DIST_DIR/index.html" ]]; then
-        printf '%s\n' '未找到 client/dist，先构建前端生产文件供后端加载……'
+        printf '%s\n' '未找到前端构建文件，正在构建……'
         (cd "$CLIENT_DIR" && yarn build) || return 1
     fi
 }
 
 start_backend() {
-    local pid
-    pid="$(pid_from_file "$BACKEND_PID_FILE")"
-
-    if [[ -n "$pid" ]] && pid_matches "$pid" 'swingmusic|archiva-music'; then
-        printf '%s\n' '后端已经在运行。'
+    if backend_running; then
         return 0
     fi
-
     if [[ -n "$(port_pid "$BACKEND_PORT")" ]]; then
-        printf '后端端口 %s 已被其它程序占用，未启动。\n' "$BACKEND_PORT" >&2
+        printf '后端端口 %s 已被占用。\n' "$BACKEND_PORT" >&2
         return 1
     fi
 
@@ -104,204 +108,197 @@ start_backend() {
     (
         cd "$ROOT_DIR" || exit 1
         nohup uv run python -m swingmusic \
-            --host 127.0.0.1 \
-            --port "$BACKEND_PORT" \
-            --debug \
-            --config "$DEV_DATA_DIR" \
-            --client "$CLIENT_DIST_DIR" \
+            --host 0.0.0.0 --port "$BACKEND_PORT" --debug \
+            --config "$DEV_DATA_DIR" --client "$CLIENT_DIST_DIR" \
             >> "$BACKEND_LOG" 2>&1 < /dev/null &
         printf '%s\n' "$!" > "$BACKEND_PID_FILE"
     )
-    printf '后端已启动，日志：%s\n' "$BACKEND_LOG"
 }
 
 start_frontend() {
-    local pid
-    pid="$(pid_from_file "$FRONTEND_PID_FILE")"
-
-    if [[ -n "$pid" ]] && pid_matches "$pid" 'vite|yarn.*dev'; then
-        printf '%s\n' '前端已经在运行。'
+    if frontend_running; then
         return 0
     fi
-
     if [[ -n "$(port_pid "$FRONTEND_PORT")" ]]; then
-        printf '前端端口 %s 已被其它程序占用，未启动。\n' "$FRONTEND_PORT" >&2
+        printf '前端端口 %s 已被占用。\n' "$FRONTEND_PORT" >&2
         return 1
     fi
 
     : > "$FRONTEND_LOG"
     (
         cd "$CLIENT_DIR" || exit 1
-        nohup yarn dev --host 127.0.0.1 --port "$FRONTEND_PORT" \
+        nohup yarn dev --host 0.0.0.0 --port "$FRONTEND_PORT" \
             >> "$FRONTEND_LOG" 2>&1 < /dev/null &
         printf '%s\n' "$!" > "$FRONTEND_PID_FILE"
     )
-    printf '前端已启动，日志：%s\n' "$FRONTEND_LOG"
 }
 
-start() {
-    ensure_dependencies || return 1
-    case "${1:-all}" in
-        all)
-            start_backend && start_frontend
-            ;;
-        backend)
-            start_backend
-            ;;
-        frontend)
-            start_frontend
-            ;;
-        *)
-            usage
-            return 1
-            ;;
-    esac
+start_program() {
+    check_dependencies || return 1
+    printf '%s\n' '正在启动服务……'
+    if start_backend && start_frontend; then
+        sleep 1
+        if backend_running && frontend_running; then
+            printf '%s\n' '状态：运行中'
+            return 0
+        fi
+    fi
+    printf '%s\n' '状态：启动失败，请查看日志。' >&2
+    return 1
 }
 
-stop_service() {
-    local label="$1"
+stop_one() {
+    local name="$1"
     local pid_file="$2"
     local pattern="$3"
-    local pid
-    pid="$(pid_from_file "$pid_file")"
+    local pid="$(pid_from_file "$pid_file")"
 
-    if [[ -z "$pid" ]]; then
-        printf '%s\n' "$label 未运行。"
+    if ! matches "$pid" "$pattern"; then
+        rm -f "$pid_file"
         return 0
     fi
 
-    if ! pid_matches "$pid" "$pattern"; then
-        printf '%s\n' "$label 的 PID 文件已失效，未终止其它进程。"
-        return 0
-    fi
+    terminate_tree() {
+        local parent="$1"
+        local child
+        for child in $(ps -axo pid=,ppid= | awk -v parent="$parent" '$2 == parent {print $1}'); do
+            terminate_tree "$child"
+        done
+        kill "$parent" 2>/dev/null || true
+    }
 
-    kill "$pid" 2>/dev/null || true
+    terminate_tree "$pid"
     for _ in 1 2 3 4 5; do
-        if ! is_running "$pid"; then
-            break
-        fi
+        running "$pid" || break
         sleep 1
     done
 
-    if is_running "$pid"; then
-        printf '%s 未能在 5 秒内退出，请查看日志：%s\n' "$label" "$RUNTIME_DIR" >&2
+    if running "$pid"; then
+        printf '%s 未能退出，请查看 .dev-runtime 日志。\n' "$name" >&2
         return 1
     fi
 
     rm -f "$pid_file"
-    printf '%s 已停止。\n' "$label"
+    return 0
 }
 
-stop() {
-    case "${1:-all}" in
-        all)
-            stop_service '后端' "$BACKEND_PID_FILE" 'swingmusic|archiva-music'
-            stop_service '前端' "$FRONTEND_PID_FILE" 'vite|yarn.*dev'
-            ;;
-        backend)
-            stop_service '后端' "$BACKEND_PID_FILE" 'swingmusic|archiva-music'
-            ;;
-        frontend)
-            stop_service '前端' "$FRONTEND_PID_FILE" 'vite|yarn.*dev'
-            ;;
-        *)
-            usage
-            return 1
-            ;;
-    esac
+stop_program() {
+    printf '%s\n' '正在停止服务……'
+    stop_one '后端' "$BACKEND_PID_FILE" 'swingmusic|archiva-music'
+    stop_one '前端' "$FRONTEND_PID_FILE" 'vite|yarn.*dev'
+    printf '%s\n' '状态：已停止'
 }
 
-logs() {
-    case "${1:-all}" in
-        backend)
-            tail -n 80 -f "$BACKEND_LOG"
-            ;;
-        frontend)
-            tail -n 80 -f "$FRONTEND_LOG"
-            ;;
-        all)
-            printf '%s\n' '--- backend.log ---'
-            tail -n 40 "$BACKEND_LOG" 2>/dev/null || true
-            printf '%s\n' '--- frontend.log ---'
-            tail -n 40 "$FRONTEND_LOG" 2>/dev/null || true
-            ;;
-        *)
-            usage
-            return 1
-            ;;
-    esac
+restart_program() {
+    stop_program
+    start_program
+}
+
+open_browser() {
+    printf '正在打开浏览器：http://127.0.0.1:%s\n' "$FRONTEND_PORT"
+    open "http://127.0.0.1:$FRONTEND_PORT"
+}
+
+show_logs() {
+    printf '%s\n' '--- 后端日志（最近 30 行）---'
+    tail -n 30 "$BACKEND_LOG" 2>/dev/null || true
+    printf '%s\n' '--- 前端日志（最近 30 行）---'
+    tail -n 30 "$FRONTEND_LOG" 2>/dev/null || true
+}
+
+show_menu() {
+    printf '%s\n' \
+        '请选择操作：' \
+        '  [1] 查看状态' \
+        '  [2] 启动程序' \
+        '  [3] 停止程序' \
+        '  [4] 重启程序' \
+        '  [5] 打开浏览器' \
+        '  [6] 查看日志' \
+        '  [7] 清理屏幕' \
+        '  [8] 显示菜单' \
+        '  [0] 退出控制台'
+}
+
+pause_console() {
+    read -r -p '按回车继续……' _
 }
 
 menu() {
+    # 双击打开时，如果服务未运行，默认自动启动。
+    if ! backend_running || ! frontend_running; then
+        if start_program; then
+            open_browser
+        fi
+        pause_console
+    fi
+
     while true; do
+        show_status
+        show_menu
+        read -r -p '请输入数字 [0-8]：' choice || break
         printf '\n'
-        status
-        printf '\n%s\n' '[s]启动  [t]停止  [r]重启  [l]查看日志  [q]退出'
-        read -r -p '请选择：' choice
         case "$choice" in
-            s|start)
-                start
+            1)
+                show_status
+                pause_console
                 ;;
-            t|stop)
-                stop
+            2)
+                start_program
+                pause_console
                 ;;
-            r|restart)
-                stop
-                start
+            3)
+                stop_program
+                pause_console
                 ;;
-            l|logs)
-                logs all
+            4)
+                restart_program
+                pause_console
                 ;;
-            q|quit|exit)
+            5)
+                open_browser
+                pause_console
+                ;;
+            6)
+                show_logs
+                pause_console
+                ;;
+            7)
+                clear
+                ;;
+            8)
+                show_menu
+                pause_console
+                ;;
+            0)
                 break
                 ;;
             *)
-                printf '%s\n' '请输入 s、t、r、l 或 q。'
+                printf '%s\n' '输入无效，请输入 0-8。'
+                pause_console
                 ;;
         esac
     done
 }
 
 usage() {
-    cat <<'EOF'
-用法：
-  ./scripts/archiva-dev.sh              进入交互式管理菜单
-  ./scripts/archiva-dev.sh status       查看后端和前端状态
-  ./scripts/archiva-dev.sh start        启动前后端
-  ./scripts/archiva-dev.sh stop         停止前后端
-  ./scripts/archiva-dev.sh restart      重启前后端
-  ./scripts/archiva-dev.sh logs         查看最近日志
-
-也可以只操作一端：
-  start|stop|restart backend|frontend
-  logs backend|frontend
-EOF
+    printf '%s\n' \
+        '用法：' \
+        '  ./scripts/archiva-dev.sh       进入管理菜单' \
+        '  ./scripts/archiva-dev.sh start 启动程序' \
+        '  ./scripts/archiva-dev.sh stop  停止程序' \
+        '  ./scripts/archiva-dev.sh restart 重启程序' \
+        '  ./scripts/archiva-dev.sh status 查看状态' \
+        '  ./scripts/archiva-dev.sh logs   查看日志'
 }
 
 case "${1:-menu}" in
-    status)
-        status
-        ;;
-    start|on)
-        start "${2:-all}"
-        ;;
-    stop|off)
-        stop "${2:-all}"
-        ;;
-    restart)
-        stop "${2:-all}" && start "${2:-all}"
-        ;;
-    logs)
-        logs "${2:-all}"
-        ;;
-    menu)
-        menu
-        ;;
-    -h|--help|help)
-        usage
-        ;;
-    *)
-        usage
-        exit 1
-        ;;
+    menu) menu ;;
+    status) show_status ;;
+    start|on) start_program ;;
+    stop|off) stop_program ;;
+    restart) restart_program ;;
+    logs) show_logs ;;
+    -h|--help|help) usage ;;
+    *) usage; exit 1 ;;
 esac
