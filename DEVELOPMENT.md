@@ -50,6 +50,8 @@ yarn build
 
 不带参数运行脚本会进入交互式菜单，可以查看状态并控制前后端启动或停止。脚本使用 `.dev-data` 保存开发配置，使用 `.dev-runtime` 保存 PID 文件和日志，不会触碰正式配置或 NAS 音乐文件。
 
+在 macOS Finder 中双击项目根目录的 `Archiva Music 管理.command`，即可自动打开 Terminal 并进入管理菜单。首次使用时如果系统阻止打开，请右键该文件并选择“打开”。
+
 ## 说明
 
 - 开发阶段不需要 Docker；源码修改和调试更快。
