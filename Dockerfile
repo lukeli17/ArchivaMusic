@@ -86,7 +86,7 @@ FROM python:${PYTHON_VERSION}-slim
 WORKDIR /app
 
 LABEL "author"="Swing Music"
-EXPOSE 1717/tcp
+EXPOSE 7017/tcp
 VOLUME /music
 VOLUME /config
 

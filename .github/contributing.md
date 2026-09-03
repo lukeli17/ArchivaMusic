@@ -38,10 +38,10 @@ cd ArchivaMusic
 uv sync
 ```
 
-然后在 `1718` 端口启动服务端：
+然后在 `7018` 端口启动服务端：
 
 ```sh
-uv run python -m swingmusic --port 1718
+uv run python -m swingmusic --port 7018
 ```
 
 之后创建新分支并进行修改：
@@ -75,10 +75,10 @@ yarn install
 yarn dev
 ```
 
-客户端地址为 <http://localhost:1719>。
+客户端地址为 <http://localhost:7019>。
 
 > [!TIP]
-> 客户端会连接运行在 `1718` 端口的开发服务端，以便与正式发布端口区分。
+> 客户端会连接运行在 `7018` 端口的开发服务端，以便与正式发布端口区分。
 
 ## 获取帮助
 
